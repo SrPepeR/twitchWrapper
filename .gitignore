@@ -137,3 +137,58 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Vercel
+.vercel
+
+# ==========================================
+# PROJECT SPECIFIC ADDITIONS
+# ==========================================
+
+# API Keys and sensitive data
+*.key
+*.pem
+config/keys.js
+config/prod_keys.js
+secrets/
+
+# IDE and Editor files
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# Build artifacts
+dist/
+build/
+out/
+public/build/
+
+# Archive files (unless needed)
+*.zip
+*.tar.gz
+*.rar
+
+# Log directories
+log/
+logs/
+
+# Test results
+test-results/
+tests/screenshots/
+tests/videos/
+
+# Package manager lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Local development
+.local
+.env.local
+.env.*.local

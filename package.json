@@ -1,0 +1,30 @@
+{
+  "name": "twitchwrapper",
+  "version": "0.0.1",
+  "description": "A Node.js wrapper for the Twitch API, designed to simplify integration and provide easy access to Twitch data.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.5.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "express",
+    "api",
+    "http",
+    "vercel"
+  ],
+  "author": "Kevin J. Rodríguez",
+  "license": "GPL-3.0",
+  "engines": {
+    "node": ">=18.x"
+  }
+}
