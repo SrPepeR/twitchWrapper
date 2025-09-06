@@ -52,10 +52,18 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 ## Project Structure
 
 ```text
-├── index.js          # Main server file
-├── package.json      # Dependencies and scripts
-├── vercel.json       # Vercel deployment configuration
-├── .env             # Environment variables (not committed)
-├── .gitignore       # Git ignore rules
-└── README.md        # This file
+├── index.js              # Main server file
+├── package.json          # Dependencies and scripts
+├── vercel.json           # Vercel deployment configuration
+├── .env                  # Environment variables (not committed)
+├── .gitignore            # Git ignore rules
+├── .editorconfig         # Editor configuration
+├── routes/               # Route handlers
+│   ├── index.js          # Main routes (/, /health)
+│   └── twitch.js         # Twitch API routes
+├── middleware/           # Middleware functions
+│   └── errorHandler.js   # Error handling middleware
+├── utils/                # Utility functions
+│   └── serverUtils.js    # Server startup and shutdown utilities
+└── README.md             # This file
 ```

@@ -1,8 +1,12 @@
 const express = require("express");
 const cors = require("cors");
-const axios = require("axios");
-const { name, version } = require("./package.json");
 require("dotenv").config();
+
+// Import routes and middleware
+const indexRoutes = require("./routes/index");
+const twitchRoutes = require("./routes/twitch");
+const { notFoundHandler, errorHandler } = require("./middleware/errorHandler");
+const { onServerStart } = require("./utils/serverUtils");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,46 +16,17 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Base route
-app.get("/", (_req, res) => {
-  res.json({
-    message: `${name} is running!`,
-    version: version,
-    timestamp: new Date().toISOString(),
-  });
-});
+// Routes
+app.use("/", indexRoutes);
+app.use("/api/twitch", twitchRoutes);
 
-// Health check endpoint
-app.get("/health", (_req, res) => {
-  res.json({
-    status: "OK",
-    uptime: process.uptime(),
-    timestamp: new Date().toISOString(),
-  });
-});
+// Error handling middleware
+app.use("*", notFoundHandler);
+app.use(errorHandler);
 
-// 404 handler
-app.use("*", (req, res) => {
-  res.status(404).json({
-    success: false,
-    error: "Endpoint not found",
-    path: req.originalUrl,
-    timestamp: new Date().toISOString(),
-  });
-});
-
-// Error handler
-app.use((err, _req, res, _next) => {
-  console.error(err.stack);
-  res.status(500).json({
-    success: false,
-    error: "Something went wrong!",
-    timestamp: new Date().toISOString(),
-  });
-});
-
+// Start server
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  onServerStart(PORT);
 });
 
 module.exports = app;
