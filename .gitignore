@@ -151,6 +151,7 @@ vite.config.ts.timestamp-*
 config/keys.js
 config/prod_keys.js
 secrets/
+.tokens
 
 # IDE and Editor files
 .vscode/

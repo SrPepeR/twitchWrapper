@@ -4,7 +4,6 @@ require("dotenv").config();
 
 // Import routes and middleware
 const indexRoutes = require("./routes/index");
-const twitchRoutes = require("./routes/twitch");
 const { notFoundHandler, errorHandler } = require("./middleware/errorHandler");
 const { onServerStart } = require("./utils/serverUtils");
 
@@ -18,7 +17,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use("/", indexRoutes);
-app.use("/api/twitch", twitchRoutes);
 
 // Error handling middleware
 app.use("*", notFoundHandler);

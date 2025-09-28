@@ -40,6 +40,12 @@ This project is configured for Vercel deployment. Simply connect your repository
 vercel
 ```
 
+## Server use
+
+1. Start server
+2. Wait for login url and device code to prompt
+3. 
+
 ## Environment Variables
 
 - `PORT` - Server port (default: 3000)

@@ -21,4 +21,26 @@ router.get("/health", (_req, res) => {
   });
 });
 
+router.get("/random-chatter", async (_req, res, next) => {
+  try {
+    const { getRandomChatter } = require("./twitch");
+    const choosenChatter = await getRandomChatter();
+
+    if (!choosenChatter) {
+      return res.status(404).json({
+        status: "No chatters found",
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    res.json({
+      status: "OK",
+      user: choosenChatter,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;
