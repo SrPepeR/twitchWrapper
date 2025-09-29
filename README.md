@@ -9,6 +9,7 @@ A Node.js wrapper for the Twitch API, designed to simplify integration and provi
 - **Secure token storage** with AES-256-CBC encryption
 - **Automatic token management** with expiration handling and refresh mechanisms
 - **Random chatter selection** from Twitch chat
+- **Twitch clips retrieval** with flexible date filtering and customizable limits
 - **Health check endpoint** for monitoring
 - **Dynamic version display** from package.json
 - **Environment variable configuration** for secure setup
@@ -26,6 +27,7 @@ A Node.js wrapper for the Twitch API, designed to simplify integration and provi
 ### Twitch Integration
 
 - `GET /random-chatter` - Returns a random user from the broadcaster's chat
+- `GET /clips/:fromTag?/:limit?` - Get Twitch clips with optional date filter and optional limit
 
 ## Prerequisites
 
@@ -139,6 +141,52 @@ The application uses Twitch's OAuth 2.0 Device Flow for secure authentication:
 🎉 Successfully logged into Twitch API!
 ```
 
+## Clips Endpoint
+
+The `/clips` endpoint provides access to Twitch clips from the configured broadcaster's channel with flexible filtering options.
+
+### Usage
+
+```bash
+GET /clips/:fromTag?/:limit?
+```
+
+### Parameters
+
+- **`fromTag`** (optional): Time range filter for clips
+  - `"today"` - Clips from the last 24 hours
+  - `"week"` - Clips from the last 7 days  
+  - `"month"` - Clips from the last 30 days
+  - `"year"` - Clips from the last 365 days (default)
+  - `"all"` - All available clips (no date filter)
+
+- **`limit`** (optional): Number of clips to return
+  - Range: 1-100 (Twitch API limitation)
+  - Default: 10
+
+### Examples
+
+```bash
+# Get last 10 clips from the past year (default)
+GET /clips
+
+# Get last 5 clips from this week
+GET /clips/week/5
+
+# Get last 20 clips from today
+GET /clips/today/20
+
+# Get all clips from the past month
+GET /clips/month
+
+# Get all available clips (no time filter)
+GET /clips/all/100
+```
+
+### Response Format
+
+Successful responses include an array of clip objects with detailed metadata including view counts, creation dates, thumbnails, and direct links to the clips.
+
 ## Token Security
 
 The application implements several security measures:
@@ -210,7 +258,7 @@ For other platforms, ensure:
 ```json
 {
   "message": "twitchwrapper is running!",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "timestamp": "2023-12-25T10:00:00.000Z"
 }
 ```
@@ -234,6 +282,41 @@ For other platforms, ensure:
   "timestamp": "2023-12-25T10:00:00.000Z"
 }
 ```
+
+### GET /clips/:fromTag?/:limit?
+
+**Example request:** `GET /clips/week/5`
+
+```json
+{
+  "status": "OK",
+  "clips": [
+    {
+      "id": "AwkwardHelplessSalamanderSwiftRage",
+      "url": "https://clips.twitch.tv/AwkwardHelplessSalamanderSwiftRage",
+      "embed_url": "https://clips.twitch.tv/embed?clip=AwkwardHelplessSalamanderSwiftRage",
+      "broadcaster_id": "67955580",
+      "broadcaster_name": "ChewieMelodies",
+      "creator_id": "53834192",
+      "creator_name": "TwitchDev",
+      "video_id": "205586603",
+      "game_id": "488191",
+      "language": "en",
+      "title": "babymetal",
+      "view_count": 10,
+      "created_at": "2017-11-30T22:34:18Z",
+      "thumbnail_url": "https://clips-media-assets.twitch.tv/157589949-preview-480x272.jpg",
+      "duration": 12.9
+    }
+  ],
+  "timestamp": "2023-12-25T10:00:00.000Z"
+}
+```
+
+**Parameters:**
+
+- `fromTag` (optional): Date range filter - `"today"`, `"week"`, `"month"`, `"year"`, `"all"` (default: `"year"`)
+- `limit` (optional): Number of clips to return, max 100 (default: `10`)
 
 ## Error Handling
 
@@ -388,4 +471,5 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 
 ## Version History
 
+- **0.0.2** - Added Twitch clips endpoint with date filtering, intelligent server instance management, and development workflow improvements
 - **0.0.1** - Initial release with OAuth 2.0 device flow, secure token storage, and random chatter API
