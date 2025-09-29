@@ -4,18 +4,19 @@ const path = require("path");
 
 // File to store encrypted tokens
 const TOKEN_FILE = path.join(__dirname, "..", ".tokens");
-const ENCRYPTION_KEY =
-  process.env.ENCRYPTION_KEY || "your-32-char-secret-key-here!!!"; // 32 chars
+const ENCRYPTION_KEY_HEX =
+  process.env.ENCRYPTION_KEY || "your-32-char-secret-key-here!!!";
+const ENCRYPTION_KEY = Buffer.from(ENCRYPTION_KEY_HEX, "hex").subarray(0, 32); // Ensure 32 bytes for AES-256
 const IV_LENGTH = 16; // For AES, this is always 16
 
 /**
  * Encrypt data using AES-256-CBC
  * @param {string} text - Text to encrypt
- * @returns {string} - Encrypted text in hex format
+ * @returns {string} - Encrypted text in format: iv:encryptedData (both in hex)
  */
 function encrypt(text) {
   const iv = crypto.randomBytes(IV_LENGTH);
-  const cipher = crypto.createCipher("aes-256-cbc", ENCRYPTION_KEY);
+  const cipher = crypto.createCipheriv("aes-256-cbc", ENCRYPTION_KEY, iv);
   let encrypted = cipher.update(text, "utf8", "hex");
   encrypted += cipher.final("hex");
   return iv.toString("hex") + ":" + encrypted;
@@ -23,14 +24,14 @@ function encrypt(text) {
 
 /**
  * Decrypt data using AES-256-CBC
- * @param {string} text - Encrypted text
+ * @param {string} text - Encrypted text in format: iv:encryptedData
  * @returns {string} - Decrypted text
  */
 function decrypt(text) {
   const parts = text.split(":");
   const iv = Buffer.from(parts.shift(), "hex");
   const encryptedText = parts.join(":");
-  const decipher = crypto.createDecipher("aes-256-cbc", ENCRYPTION_KEY);
+  const decipher = crypto.createDecipheriv("aes-256-cbc", ENCRYPTION_KEY, iv);
   let decrypted = decipher.update(encryptedText, "hex", "utf8");
   decrypted += decipher.final("utf8");
   return decrypted;
