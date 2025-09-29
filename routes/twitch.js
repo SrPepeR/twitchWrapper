@@ -281,6 +281,16 @@ const refreshAccessToken = async (refreshToken) => {
   }
 };
 
+/**
+ * Fetches a random chatter from the Twitch channel chatters list
+ * @async
+ * @function getRandomChatter
+ * @param {string} [cursor] - Optional pagination cursor for fetching next page of results
+ * @param {number} [choosenChatterIndex] - Index of the chosen chatter
+ * @param {number} [lastChatterIndex] - Index of the last fetched chatter
+ * @returns {Promise<string|null>} The username of the randomly selected chatter or null if not found
+ * @throws {Error} Throws error if API request fails or authentication is invalid
+ */
 getRandomChatter = async (cursor, choosenChatterIndex, lastChatterIndex) => {
   try {
     if (!global.twitchAccessToken) {
@@ -337,4 +347,104 @@ getRandomChatter = async (cursor, choosenChatterIndex, lastChatterIndex) => {
   }
 };
 
-module.exports = { manageTwitchLogin, getRandomChatter };
+/**
+ * Fetches clips from a Twitch channel
+ * @async
+ * @function getClips
+ * @param {string} [fromTag] - Optional tag representing the date range (default: "year")
+ * @param {number} [limit] - Optional limit on the number of clips to return (default: 10, max 100)
+ * @returns {Promise<Array>} Promise that resolves to an array of clip objects
+ * @throws {Error} Throws an error if the API request fails or authentication is invalid
+ */
+getClips = async (fromTag = "year", limit = 10) => {
+  try {
+    if (!global.twitchAccessToken) {
+      throw new Error("No access token available. Please authenticate first.");
+    }
+
+    const broadcasterId = process.env.TWITCH_BROADCASTER_ID;
+
+    if (!broadcasterId) {
+      throw new Error(
+        "TWITCH_BROADCASTER_ID must be set in environment variables."
+      );
+    }
+
+    // Determine the started_at date based on fromTag
+    let startedAt = null;
+    const now = new Date();
+
+    switch (fromTag.toLowerCase()) {
+      case "today":
+        startedAt = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        break;
+      case "week":
+        startedAt = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate() - 7
+        );
+        break;
+      case "month":
+        startedAt = new Date(
+          now.getFullYear(),
+          now.getMonth() - 1,
+          now.getDate()
+        );
+        break;
+      case "year":
+        startedAt = new Date(
+          now.getFullYear() - 1,
+          now.getMonth(),
+          now.getDate()
+        );
+        break;
+      case "all":
+        startedAt = null; // No date filter
+        break;
+      default:
+        throw new Error(
+          `Invalid fromTag value: ${fromTag}. Valid options are: today, week, month, year, all.`
+        );
+    }
+
+    const params = new URLSearchParams({
+      broadcaster_id: broadcasterId,
+      first: Math.min(limit, 100), // Twitch API max limit is 100
+    });
+
+    if (startedAt) {
+      params.append("started_at", startedAt.toISOString());
+    }
+
+    const response = await axios.get("https://api.twitch.tv/helix/clips", {
+      headers: {
+        Authorization: `Bearer ${global.twitchAccessToken.access_token}`,
+        "Client-Id": process.env.TWITCH_CLIENT_ID,
+      },
+      params,
+    });
+
+    const clips = response.data;
+
+    if (!clips || clips.length === 0) {
+      console.log("No clips found.");
+      return null;
+    }
+
+    return clips;
+  } catch (error) {
+    console.error(
+      "❌  Error fetching clips:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+// Export functions for use in other modules
+module.exports = {
+  manageTwitchLogin,
+  getRandomChatter,
+  getClips,
+};
