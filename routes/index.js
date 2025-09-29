@@ -21,6 +21,47 @@ router.get("/health", (_req, res) => {
   });
 });
 
+// Validates a Twitch access token
+// - Uses provided token from request body or Authorization header
+// - Falls back to global token if no token provided
+router.post("/validate", async (req, res, next) => {
+  try {
+    const { validateToken } = require("./twitch");
+
+    // Get token from body or Authorization header
+    const token =
+      req.body.token ||
+      (req.headers.authorization &&
+        req.headers.authorization.replace("Bearer ", ""));
+
+    const validationResult = await validateToken(token);
+
+    if (validationResult.valid) {
+      res.json({
+        status: "OK",
+        valid: true,
+        token_info: {
+          client_id: validationResult.client_id,
+          login: validationResult.login,
+          user_id: validationResult.user_id,
+          scopes: validationResult.scopes,
+          expires_in: validationResult.expires_in,
+        },
+        timestamp: new Date().toISOString(),
+      });
+    } else {
+      res.status(validationResult.status || 401).json({
+        status: "Invalid token",
+        valid: false,
+        error: validationResult.error,
+        timestamp: new Date().toISOString(),
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Gets a random chatter from the Twitch channel
 router.get("/random-chatter", async (_req, res, next) => {
   try {

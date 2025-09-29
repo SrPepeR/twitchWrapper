@@ -25,10 +25,24 @@ async function manageTwitchLogin() {
     const existingTokens = await tokenManager.initialize();
 
     if (existingTokens && !tokenManager.needsRefresh()) {
-      console.log("✅ Using existing valid tokens from storage");
-      global.twitchAccessToken = existingTokens;
-      manageKeepAlive(existingTokens);
-      return;
+      console.log("✅ Found existing tokens from storage, validating...");
+
+      // Validate the existing token with Twitch API
+      const validationResult = await validateToken(existingTokens.access_token);
+
+      if (validationResult.valid) {
+        console.log("✅ Token validation successful, using existing tokens");
+        global.twitchAccessToken = existingTokens;
+        manageKeepAlive(existingTokens);
+        return;
+      } else {
+        console.log("❌ Token validation failed:", validationResult.error);
+        console.log(
+          "🗑️ Clearing invalid tokens and starting new authentication..."
+        );
+        tokenManager.clearTokens();
+        // Continue with the authentication flow below
+      }
     }
 
     // If no valid tokens, start authentication process
@@ -282,6 +296,59 @@ const refreshAccessToken = async (refreshToken) => {
 };
 
 /**
+ * Validates a Twitch access token with the Twitch API
+ * @async
+ * @function validateToken
+ * @param {string} [token] - Optional token to validate. If not provided, uses the stored token.
+ * @returns {Promise<Object>} Promise that resolves to validation result with token information
+ * @throws {Error} Throws an error if the token validation fails
+ */
+validateToken = async (token = null) => {
+  try {
+    // Use provided token or fallback to global token
+    const tokenToValidate = token || global.twitchAccessToken?.access_token;
+
+    if (!tokenToValidate) {
+      throw new Error("No token provided and no global token available.");
+    }
+
+    // Validate token with Twitch API
+    const response = await axios.get("https://id.twitch.tv/oauth2/validate", {
+      headers: {
+        Authorization: `OAuth ${tokenToValidate}`,
+      },
+    });
+
+    const validationData = response.data;
+
+    return {
+      valid: true,
+      data: validationData,
+      token_type: "Bearer",
+      expires_in: validationData.expires_in,
+      scopes: validationData.scopes,
+      client_id: validationData.client_id,
+      login: validationData.login,
+      user_id: validationData.user_id,
+    };
+  } catch (error) {
+    console.error(
+      "❌ Token validation failed:",
+      error.response?.data || error.message
+    );
+
+    // Return structured error response
+    return {
+      valid: false,
+      error: `Token validation failed from twitch: ${
+        error.response?.data?.message || error.message
+      }`,
+      status: error.response?.status || 500,
+    };
+  }
+};
+
+/**
  * Fetches a random chatter from the Twitch channel chatters list
  * @async
  * @function getRandomChatter
@@ -445,6 +512,7 @@ getClips = async (fromTag = "year", limit = 10) => {
 // Export functions for use in other modules
 module.exports = {
   manageTwitchLogin,
+  validateToken,
   getRandomChatter,
   getClips,
 };

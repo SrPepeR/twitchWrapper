@@ -28,6 +28,7 @@ A Node.js wrapper for the Twitch API, designed to simplify integration and provi
 
 - `GET /random-chatter` - Returns a random user from the broadcaster's chat
 - `GET /clips/:fromTag?/:limit?` - Get Twitch clips with optional date filter and optional limit
+- `POST /validate` - Validate a Twitch access token (accepts token in request body or or Authorization header)
 
 ## Prerequisites
 
@@ -317,6 +318,54 @@ For other platforms, ensure:
 
 - `fromTag` (optional): Date range filter - `"today"`, `"week"`, `"month"`, `"year"`, `"all"` (default: `"year"`)
 - `limit` (optional): Number of clips to return, max 100 (default: `10`)
+
+### POST /validate
+
+Validates a Twitch access token using Twitch's OAuth validation endpoint.
+
+**Example request:** `POST /validate with the token in request body.
+
+**Response (valid token):**
+
+```json
+{
+  "status": "OK",
+  "valid": true,
+  "tokenInfo": {
+    "client_id": "your_client_id",
+    "login": "twitchdev",
+    "scopes": ["channel:read:subscriptions", "chat:read"],
+    "user_id": "141981764",
+    "expires_in": 5520838
+  },
+  "timestamp": "2023-12-25T10:00:00.000Z"
+}
+```
+
+**Response (invalid token):**
+
+```json
+{
+  "status": "Error",
+  "valid": false,
+  "error": "Token validation failed from twitch: Token validation failed",
+  "timestamp": "2023-12-25T10:00:00.000Z"
+}
+```
+
+**Parameters:**
+
+- `token` (optional): Access token to validate. Can be provided via:
+  **Request body (JSON):**
+
+  ```json
+  {
+    "token": "your_access_token_here"
+  }
+  ```
+
+  **OR** - Authorization header: `Authorization: Bearer your_token`
+  - If not provided, uses the global stored token
 
 ## Error Handling
 
