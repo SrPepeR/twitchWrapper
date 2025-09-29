@@ -5,7 +5,7 @@ require("dotenv").config();
 // Import routes and middleware
 const indexRoutes = require("./routes/index");
 const { notFoundHandler, errorHandler } = require("./middleware/errorHandler");
-const { onServerStart } = require("./utils/serverUtils");
+const { startServerWithPortFinding } = require("./utils/serverUtils");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,9 +22,15 @@ app.use("/", indexRoutes);
 app.use("*", notFoundHandler);
 app.use(errorHandler);
 
-// Start server
-app.listen(PORT, () => {
-  onServerStart(PORT);
-});
+// Start server with automatic port detection
+(async () => {
+  try {
+    const actualPort = await startServerWithPortFinding(app, PORT);
+    console.log(`✅ Server successfully started on port ${actualPort}`);
+  } catch (error) {
+    console.error("❌ Failed to start server:", error.message);
+    process.exit(1);
+  }
+})();
 
 module.exports = app;
