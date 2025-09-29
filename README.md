@@ -259,7 +259,7 @@ For other platforms, ensure:
 ```json
 {
   "message": "twitchwrapper is running!",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "timestamp": "2023-12-25T10:00:00.000Z"
 }
 ```
@@ -520,5 +520,6 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 
 ## Version History
 
+- **0.0.3** - Added token validation endpoint and enhanced authentication flow with automatic token validation on startup
 - **0.0.2** - Added Twitch clips endpoint with date filtering, intelligent server instance management, and development workflow improvements
 - **0.0.1** - Initial release with OAuth 2.0 device flow, secure token storage, and random chatter API
