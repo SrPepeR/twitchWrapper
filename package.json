@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
+    "dev:clean": "npm run kill && npm run dev",
+    "kill": "node scripts/killServer.js",
     "generateEncryptionKey": "node scripts/generateEncryptionKey.js"
   },
   "dependencies": {

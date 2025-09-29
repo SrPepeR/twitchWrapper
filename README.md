@@ -12,6 +12,8 @@ A Node.js wrapper for the Twitch API, designed to simplify integration and provi
 - **Health check endpoint** for monitoring
 - **Dynamic version display** from package.json
 - **Environment variable configuration** for secure setup
+- **Intelligent server management** with automatic cleanup of previous instances
+- **Development workflow optimization** with clean restart capabilities
 - **Ready for Vercel deployment** with optimized configuration
 
 ## API Endpoints
@@ -79,17 +81,38 @@ Copy the generated key to your `.env` file under `ENCRYPTION_KEY`.
 
 ### 5. Run the Application
 
-For development:
+**For development (recommended):**
+
+```bash
+npm run dev:clean
+```
+
+**For development (standard):**
 
 ```bash
 npm run dev
 ```
 
-For production:
+**For production:**
 
 ```bash
 npm start
 ```
+
+#### New Development Commands
+
+The project now includes intelligent server management commands:
+
+- **`npm run dev:clean`** - ⭐ **Recommended for development**: Automatically kills any previous server instances and starts a fresh development server
+- **`npm run kill`** - Kills all running server instances without starting a new one
+- **`npm run dev`** - Standard development server start (may conflict with existing instances)
+
+The `dev:clean` command is particularly useful because it:
+
+1. 🔍 Automatically detects and terminates existing server processes
+2. 🌐 Clears processes using common development ports (3000-3006)
+3. 🚀 Starts a fresh server instance without port conflicts
+4. 📋 Provides detailed feedback about what was cleaned up
 
 ## Authentication Flow
 
@@ -164,6 +187,7 @@ For other platforms, ensure:
 │   └── tokenStorage.js     # Secure token storage and encryption utilities
 ├── scripts/                 # Utility scripts
 │   ├── generateEncryptionKey.js  # Generates secure encryption keys
+│   ├── killServer.js       # Intelligent server instance cleanup utility
 │   └── tokenManager.js     # Token management utilities (if needed)
 └── README.md               # Project documentation
 ```
@@ -226,7 +250,85 @@ The application includes comprehensive error handling:
 
 - `npm start` - Start the production server
 - `npm run dev` - Start the development server with nodemon
+- `npm run dev:clean` - **⭐ RECOMMENDED**: Kill previous instances and start fresh development server
+- `npm run kill` - Kill all running server instances
 - `npm run generateEncryptionKey` - Generate a new encryption key
+
+### Development Workflow
+
+For daily development, it's recommended to use the clean development command:
+
+```bash
+npm run dev:clean
+```
+
+This command will:
+
+1. 🔍 Search for and terminate any existing server instances
+2. 🧹 Clean up processes using common ports (3000-3006)
+3. 🚀 Start a fresh development server with nodemon
+
+#### Managing Server Instances
+
+Sometimes you may have multiple server instances running that can cause port conflicts. Use these commands to manage them:
+
+**Kill all server instances:**
+
+```bash
+npm run kill
+```
+
+**Start development server normally:**
+
+```bash
+npm run dev
+```
+
+**Kill and restart in one command (recommended):**
+
+```bash
+npm run dev:clean
+```
+
+### Server Instance Management
+
+The project includes an intelligent server cleanup system that:
+
+- **🔍 Smart Detection**: Automatically finds running instances by process name and project directory
+- **🌐 Port Cleanup**: Checks and clears processes using ports 3000-3006
+- **📋 Detailed Reporting**: Shows exactly what processes were found and terminated
+- **✅ Verification**: Confirms successful cleanup before starting new instances
+
+#### Kill Server Script
+
+The `scripts/killServer.js` utility provides comprehensive server cleanup with:
+
+- Process detection by multiple patterns (nodemon, node, project-specific)
+- Port-based process identification and termination
+- Detailed logging of cleanup operations
+- Final verification of remaining processes
+
+**Example output:**
+
+``` text
+🔍 Searching for running TwitchWrapper server instances...
+
+🎯 Project: twitchWrapper
+📁 Directory: /home/user/twitchWrapper
+
+🛑 Starting cleanup process...
+
+🔍 Checking for: Nodemon processes running index.js
+   📋 Found PIDs: 12345, 67890
+   ✅ Killed process 12345
+   ✅ Killed process 67890
+
+🌐 Checking processes on ports: 3000, 3001, 3002, 3003, 3004, 3005, 3006
+   ✅ Killed process on port 3000
+
+🧹 Cleanup complete!
+✨ All TwitchWrapper server instances have been terminated.
+```
 
 ## Security Considerations
 
@@ -244,6 +346,28 @@ The application includes comprehensive error handling:
 2. **Token decryption errors**: Verify your encryption key is correctly set
 3. **API errors**: Ensure broadcaster and moderator IDs are correct
 4. **Permission errors**: Verify your Twitch application has the required scopes
+5. **Port conflicts**: Use `npm run kill` or `npm run dev:clean` to clear conflicting server instances
+6. **Server won't start**: Check if another instance is running with `npm run kill` and try again
+
+### Development Issues
+
+**Multiple server instances running:**
+
+```bash
+npm run dev:clean  # Recommended: kills old instances and starts fresh
+```
+
+**Manual cleanup:**
+
+```bash
+npm run kill       # Just kills instances without starting new one
+```
+
+**Port already in use errors:**
+
+- The server automatically finds available ports (3000-3006)
+- Use `npm run kill` to clean up any stuck processes
+- Check the console output for the actual port being used
 
 ### Logging
 
