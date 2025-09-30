@@ -6,8 +6,11 @@ const router = express.Router();
 // Base route
 router.get("/", (_req, res) => {
   res.json({
-    message: `${name} is running!`,
-    version: version,
+    status: "OK",
+    data: {
+      message: `${name} is running!`,
+      version: version,
+    },
     timestamp: new Date().toISOString(),
   });
 });
@@ -16,7 +19,9 @@ router.get("/", (_req, res) => {
 router.get("/health", (_req, res) => {
   res.json({
     status: "OK",
-    uptime: process.uptime(),
+    data: {
+      uptime: process.uptime(),
+    },
     timestamp: new Date().toISOString(),
   });
 });
@@ -39,21 +44,23 @@ router.post("/validate", async (req, res, next) => {
     if (validationResult.valid) {
       res.json({
         status: "OK",
-        valid: true,
-        token_info: {
-          client_id: validationResult.client_id,
-          login: validationResult.login,
-          user_id: validationResult.user_id,
-          scopes: validationResult.scopes,
-          expires_in: validationResult.expires_in,
+        data: {
+          valid: true,
+          token_info: {
+            login: validationResult.login,
+            scopes: validationResult.scopes,
+            expires_in: validationResult.expires_in,
+          },
         },
         timestamp: new Date().toISOString(),
       });
     } else {
       res.status(validationResult.status || 401).json({
-        status: "Invalid token",
-        valid: false,
-        error: validationResult.error,
+        status: "Error",
+        data: {
+          valid: false,
+          error: validationResult.error,
+        },
         timestamp: new Date().toISOString(),
       });
     }
@@ -70,14 +77,17 @@ router.get("/random-chatter", async (_req, res, next) => {
 
     if (!choosenChatter) {
       return res.status(204).json({
-        status: "No chatters found",
+        status: "OK",
+        data: null,
         timestamp: new Date().toISOString(),
       });
     }
 
     res.json({
       status: "OK",
-      user: choosenChatter,
+      data: {
+        user: choosenChatter,
+      },
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
@@ -98,14 +108,17 @@ router.get("/clips/:fromTag?/:limit?", async (req, res, next) => {
 
     if (!clips || clips.length === 0) {
       return res.status(204).json({
-        status: "No clips found",
+        status: "OK",
+        data: null,
         timestamp: new Date().toISOString(),
       });
     }
 
     res.json({
       status: "OK",
-      clips: clips,
+      data: {
+        clips: clips,
+      },
       timestamp: new Date().toISOString(),
     });
   } catch (error) {

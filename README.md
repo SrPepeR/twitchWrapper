@@ -254,12 +254,31 @@ For other platforms, ensure:
 
 ## API Response Examples
 
+All API endpoints return a consistent JSON structure with the following format:
+
+```json
+{
+  "status": "OK" | "Error",
+  "data": {
+    // Endpoint-specific data
+  },
+  "timestamp": "ISO 8601 timestamp"
+}
+```
+
+- **status**: Always "OK" for successful requests, "Error" for failed requests
+- **data**: Contains the actual response data, or `null` for empty results
+- **timestamp**: ISO 8601 formatted timestamp of the response
+
 ### GET /
 
 ```json
 {
-  "message": "twitchwrapper is running!",
-  "version": "0.0.3",
+  "status": "OK",
+  "data": {
+    "message": "twitchwrapper is running!",
+    "version": "0.0.3"
+  },
   "timestamp": "2023-12-25T10:00:00.000Z"
 }
 ```
@@ -269,7 +288,9 @@ For other platforms, ensure:
 ```json
 {
   "status": "OK",
-  "uptime": 3600.123,
+  "data": {
+    "uptime": 3600.123
+  },
   "timestamp": "2023-12-25T10:00:00.000Z"
 }
 ```
@@ -279,7 +300,9 @@ For other platforms, ensure:
 ```json
 {
   "status": "OK",
-  "user": "some_viewer_username",
+  "data": {
+    "user": "some_viewer_username"
+  },
   "timestamp": "2023-12-25T10:00:00.000Z"
 }
 ```
@@ -291,25 +314,27 @@ For other platforms, ensure:
 ```json
 {
   "status": "OK",
-  "clips": [
-    {
-      "id": "AwkwardHelplessSalamanderSwiftRage",
-      "url": "https://clips.twitch.tv/AwkwardHelplessSalamanderSwiftRage",
-      "embed_url": "https://clips.twitch.tv/embed?clip=AwkwardHelplessSalamanderSwiftRage",
-      "broadcaster_id": "67955580",
-      "broadcaster_name": "ChewieMelodies",
-      "creator_id": "53834192",
-      "creator_name": "TwitchDev",
-      "video_id": "205586603",
-      "game_id": "488191",
-      "language": "en",
-      "title": "babymetal",
-      "view_count": 10,
-      "created_at": "2017-11-30T22:34:18Z",
-      "thumbnail_url": "https://clips-media-assets.twitch.tv/157589949-preview-480x272.jpg",
-      "duration": 12.9
-    }
-  ],
+  "data": {
+    "clips": [
+      {
+        "id": "AwkwardHelplessSalamanderSwiftRage",
+        "url": "https://clips.twitch.tv/AwkwardHelplessSalamanderSwiftRage",
+        "embed_url": "https://clips.twitch.tv/embed?clip=AwkwardHelplessSalamanderSwiftRage",
+        "broadcaster_id": "67955580",
+        "broadcaster_name": "ChewieMelodies",
+        "creator_id": "53834192",
+        "creator_name": "TwitchDev",
+        "video_id": "205586603",
+        "game_id": "488191",
+        "language": "en",
+        "title": "babymetal",
+        "view_count": 10,
+        "created_at": "2017-11-30T22:34:18Z",
+        "thumbnail_url": "https://clips-media-assets.twitch.tv/157589949-preview-480x272.jpg",
+        "duration": 12.9
+      }
+    ]
+  },
   "timestamp": "2023-12-25T10:00:00.000Z"
 }
 ```
@@ -330,13 +355,13 @@ Validates a Twitch access token using Twitch's OAuth validation endpoint.
 ```json
 {
   "status": "OK",
-  "valid": true,
-  "tokenInfo": {
-    "client_id": "your_client_id",
-    "login": "twitchdev",
-    "scopes": ["channel:read:subscriptions", "chat:read"],
-    "user_id": "141981764",
-    "expires_in": 5520838
+  "data": {
+    "valid": true,
+    "token_info": {
+      "login": "twitchdev",
+      "scopes": ["channel:read:subscriptions", "chat:read"],
+      "expires_in": 5520838
+    }
   },
   "timestamp": "2023-12-25T10:00:00.000Z"
 }
@@ -347,8 +372,10 @@ Validates a Twitch access token using Twitch's OAuth validation endpoint.
 ```json
 {
   "status": "Error",
-  "valid": false,
-  "error": "Token validation failed from twitch: Token validation failed",
+  "data": {
+    "valid": false,
+    "error": "Token validation failed"
+  },
   "timestamp": "2023-12-25T10:00:00.000Z"
 }
 ```
@@ -356,7 +383,8 @@ Validates a Twitch access token using Twitch's OAuth validation endpoint.
 **Parameters:**
 
 - `token` (optional): Access token to validate. Can be provided via:
-  **Request body (JSON):**
+
+   **Request body (JSON):**
 
   ```json
   {
