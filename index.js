@@ -4,7 +4,11 @@ require("dotenv").config();
 
 // Import routes and middleware
 const indexRoutes = require("./routes/index");
-const { notFoundHandler, errorHandler } = require("./middleware/errorHandler");
+const {
+  notFoundHandler,
+  errorHandler,
+  unauthorizedHandler,
+} = require("./middleware/errorHandler");
 const { startServerWithPortFinding } = require("./utils/serverUtils");
 
 const app = express();
@@ -20,6 +24,7 @@ app.use("/", indexRoutes);
 
 // Error handling middleware
 app.use("*", notFoundHandler);
+app.use(unauthorizedHandler);
 app.use(errorHandler);
 
 // Start server with automatic port detection

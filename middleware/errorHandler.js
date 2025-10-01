@@ -11,6 +11,18 @@ const notFoundHandler = (req, res) => {
 };
 
 /**
+ * 401 handler - Handles unauthorized access
+ */
+const unauthorizedHandler = (req, res) => {
+  res.status(401).json({
+    success: false,
+    error: "Twitch token is expired or invalid, please re-authenticate",
+    path: req.originalUrl,
+    timestamp: new Date().toISOString(),
+  });
+};
+
+/**
  * Error handler - Handles server errors
  */
 const errorHandler = (err, _req, res, _next) => {
@@ -30,5 +42,6 @@ const errorHandler = (err, _req, res, _next) => {
 
 module.exports = {
   notFoundHandler,
+  unauthorizedHandler,
   errorHandler,
 };
